@@ -1,0 +1,31 @@
+% Importar los datos filtrados
+
+datos_1 = readtable('Ecuador_2021_bymatch.csv');
+datos_2 = readtable('Ecuador_2022_bymatch.csv');
+datos_3 = readtable('Ecuador_2023_bymatch.csv');
+
+% Ajustar la fecha de referencia para calcular la edad de los jugadores
+fechaReferencia1 = datetime(2021, 1, 1);
+edad1 = years(fechaReferencia1 - datetime(datos_1.Birthdate, 'InputFormat', 'yyyy-MM-dd'));
+
+fechaReferencia2 = datetime(2022, 1, 1);
+edad2 = years(fechaReferencia2 - datetime(datos_2.Birthdate, 'InputFormat', 'yyyy-MM-dd'));
+
+fechaReferencia3 = datetime(2023, 1, 1);
+edad3 = years(fechaReferencia3 - datetime(datos_3.Birthdate, 'InputFormat', 'yyyy-MM-dd'));
+
+% Añadir la columna Edad a la tabla
+datos_1.Edad = edad1;
+datos_2.Edad = edad2;
+datos_3.Edad = edad3;
+
+% Eliminar la columna Birthdate
+datos_1.Birthdate = [];
+datos_2.Birthdate = [];
+datos_3.Birthdate = [];
+
+% Unir las tablas en una sola
+datosTotales = [datos_1; datos_2; datos_3];
+
+% Guardar la tabla combinada en un nuevo archivo CSV
+writetable(datosTotales, 'Ecuador_total_bymatch.csv');
