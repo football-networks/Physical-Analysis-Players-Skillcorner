@@ -1,0 +1,108 @@
+% Lee la tabla desde el archivo CSV
+datos = readtable('Ecuador_total_filtrados.csv');
+
+% Selecciona las columnas relevantes: MinutesPlayed (H) y las columnas desde la N hasta la AA
+columnas_relevantes = {'MinutesPlayed', datos.Properties.VariableNames{14:end}};
+
+% Selecciona solo las columnas relevantes
+datos_seleccionados = datos(:, columnas_relevantes);
+
+% Convierte la tabla en una matriz numérica
+datos_matriz = table2array(datos_seleccionados);
+
+% Normalización de los datos
+datos_norm = normalize(datos_matriz);
+
+% Aplicamos PCA
+[coeff, score, ~, ~, explained] = pca(datos_norm);
+
+%Defino número de Clusters
+n_clusters = 5;
+
+% Selecciono de las tres primeras componentes principales
+componentes_principales = score(:, 1:3);
+
+% Inicializar los centroides para K-means
+rng(1); % Fija la semilla aleatoria para tener siempre las mismas etiquetas en los clusters
+initial_centroids = datasample(componentes_principales, n_clusters, 'Replace', false);
+
+% Hacer clustering con centroides iniciales fijos
+[~, ~] = kmeans(componentes_principales, n_clusters, 'Start', initial_centroids);
+
+% Hago clustering
+[idx, centroids] = kmeans(componentes_principales, n_clusters);
+
+% Visualización (opcional)
+scatter3(componentes_principales(:,1), componentes_principales(:,2), componentes_principales(:,3), 10, idx, 'filled');
+title('Clustering en las tres primeras componentes principales');
+xlabel('Componente Principal 1');
+ylabel('Componente Principal 2');
+zlabel('Componente Principal 3');
+
+
+
+
+% Definir las etiquetas de posición
+posiciones = {'Forward', 'Midfield', 'Winger', 'Full Back', 'Central Defender'};
+
+% Inicializar un vector para almacenar el número de jugadores por posición
+num_jugadores_por_posicion = zeros(1, numel(posiciones));
+
+% Iterar sobre cada etiqueta de posición
+for i = 1:numel(posiciones)
+    % Contar cuántos jugadores tienen la etiqueta actual en la columna PositionGroup
+    num_jugadores_por_posicion(i) = sum(strcmp(datos.PositionGroup, posiciones{i}));
+    
+    % Mostrar los resultados
+    disp(['Número de jugadores etiquetados como "', posiciones{i}, '": ', num2str(num_jugadores_por_posicion(i))]);
+end
+
+
+
+
+
+
+
+
+
+% Creamos una tabla con el nombre de los jugadores y el índice de clúster al que pertenecen
+jugadores_clusters = table(datos.Player, idx, 'VariableNames', {'Jugador', 'Cluster'});
+
+% Inicializamos una celda para almacenar los datos de cada clúster
+datos_por_cluster = cell(1, n_clusters);
+
+% Llenamos la celda con los datos de cada clúster
+for cluster = 1:n_clusters
+    datos_por_cluster{cluster} = datos(jugadores_clusters.Cluster == cluster, :);
+    
+    % Obtener los datos del clúster actual
+    datos_cluster = datos_por_cluster{cluster};
+
+    % Contar el número de jugadores en el clúster actual
+    num_total_jugadores_cluster = size(datos_cluster, 1);
+
+    % Inicializar variables para contar jugadores en cada posición
+    num_forward = sum(strcmp(datos_cluster.PositionGroup, 'Forward'));
+    num_midfield = sum(strcmp(datos_cluster.PositionGroup, 'Midfield'));
+    num_winger = sum(strcmp(datos_cluster.PositionGroup, 'Winger'));
+    num_CentralDef = sum(strcmp(datos_cluster.PositionGroup, 'Central Defender'));
+    num_Fullback = sum(strcmp(datos_cluster.PositionGroup, 'Full Back'));
+
+    % Calcular los porcentajes de jugadores en cada posición
+    porcentaje_forward = (num_forward / 1356) * 100;
+    porcentaje_midfield = (num_midfield / 2383) * 100;
+    porcentaje_winger = (num_winger / 1127) * 100;
+    porcentaje_CentralDef = (num_CentralDef / 2136) * 100;
+    porcentaje_FullBack = (num_Fullback / 1754) * 100;
+
+    % Mostrar los resultados
+    disp(['Porcentaje de jugadores en el clúster ', num2str(cluster), ' etiquetados como "Forward": ', num2str(porcentaje_forward), '%']);
+    disp(['Porcentaje de jugadores en el clúster ', num2str(cluster), ' etiquetados como "Winger": ', num2str(porcentaje_winger), '%']);
+    disp(['Porcentaje de jugadores en el clúster ', num2str(cluster), ' etiquetados como "Midfield": ', num2str(porcentaje_midfield), '%']);
+    disp(['Porcentaje de jugadores en el clúster ', num2str(cluster), ' etiquetados como "Central Defender": ', num2str(porcentaje_CentralDef), '%']);
+    disp(['Porcentaje de jugadores en el clúster ', num2str(cluster), ' etiquetados como "Full Back": ', num2str(porcentaje_FullBack), '%']);
+    disp('//////')
+
+    disp(num_total_jugadores_cluster)
+
+end
