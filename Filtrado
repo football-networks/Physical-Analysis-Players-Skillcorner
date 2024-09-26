@@ -1,0 +1,28 @@
+% Leer los datos desde el archivo CSV
+datos_total = readtable('Ecuador_total.csv');
+
+% Obtener la lista de jugadores únicos
+jugadores_unicos = unique(datos_total.Player);
+
+frecuencia_jugadores = zeros(size(jugadores_unicos));
+
+% Iterar sobre cada jugador único y contar cuántas veces aparece en la tabla
+for i = 1:length(jugadores_unicos)
+    jugador_actual = jugadores_unicos{i}; %seleccionamos jugador i de la lista
+    frecuencia_jugadores(i) = sum(strcmp(datos_total.Player, jugador_actual)); 
+    %contamos cuantas veces el jugador i aparece en nuestros datos
+end
+
+% Crear una tabla con los nombres de los jugadores únicos y su frecuencia
+tabla_jugadores_frecuencia = table(jugadores_unicos, frecuencia_jugadores, 'VariableNames', {'Jugador', 'Frecuencia'});
+
+% Filtrar los jugadores que aparecen diez veces o más
+tabla_jugadores_filtrados = tabla_jugadores_frecuencia(tabla_jugadores_frecuencia.Frecuencia >= 10, :);
+
+% Obtener los nombres de los jugadores que aparecen diez veces o más
+nombres_jugadores_filtrados = tabla_jugadores_filtrados.Jugador;
+
+% Filtrar los datos originales para retener solo las filas correspondientes a los jugadores que aparecen diez veces o más
+datos_filtrados = datos_total(ismember(datos_total.Player, nombres_jugadores_filtrados), :);
+
+writetable(datos_filtrados, 'Ecuador_total_filtrados.csv');
