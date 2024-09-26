@@ -1,0 +1,18 @@
+% Leer la tabla completa
+datos_filtrados = readtable('Ecuador_total_filtrados.csv');
+
+% Filtrar los datos para las distintas categorías de edad
+
+% Menores o igual a 25 años
+menores_igual_25 = datos_filtrados(datos_filtrados.Edad <= 25, :);
+
+% Mayores de 25 y menores o igual a 30 años
+mayores_25_menores_igual_30 = datos_filtrados(datos_filtrados.Edad > 25 & datos_filtrados.Edad <= 30, :);
+
+% Mayores de 30 años
+mayores_30 = datos_filtrados(datos_filtrados.Edad > 30, :);
+
+% Guardar los resultados en diferentes archivos
+writetable(menores_igual_25, 'jugadores_menores_igual_25.csv');
+writetable(mayores_25_menores_igual_30, 'jugadores_mayores_25_menores_igual_30.csv');
+writetable(mayores_30, 'jugadores_mayores_30.csv');
