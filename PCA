@@ -1,0 +1,21 @@
+% Añadir esto al código que tengo
+% Mostrar los coeficientes del PCA
+disp('Coeficientes del PCA:');
+disp(coeff);
+
+% Visualizar la contribución de cada variable a las tres primeras componentes principales
+figure;
+bar(coeff(:, 1:3));
+title('Contribución de las variables a las tres primeras componentes principales');
+xlabel('Variables originales');
+ylabel('Coeficientes');
+legend('Componente 1', 'Componente 2', 'Componente 3', 'Location', 'northwest');
+
+% Mostrar el porcentaje de varianza explicada por cada componente
+disp('Porcentaje de varianza explicada por cada componente:')
+disp(explained)
+
+% Mostrar el porcentaje acumulado de varianza explicada
+explained_cumulative = cumsum(explained);
+disp('Porcentaje acumulado de varianza explicada:')
+disp(explained_cumulative)
