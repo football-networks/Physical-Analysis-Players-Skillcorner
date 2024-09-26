@@ -1,0 +1,18 @@
+% Leer el archivo CSV principal
+filename = 'Ecuador_total_filtrados.csv';
+data = readtable(filename);
+
+% Filtrar y guardar los datos según el "position group"
+position_groups = {'Central Defender', 'Winger', 'Midfield', 'Forward', 'Full Back'};
+
+for i = 1:length(position_groups)
+    % Filtrar los datos para el position group actual
+    group_data = data(strcmp(data.PositionGroup, position_groups{i}), :);
+    
+    % Crear un nombre de archivo para guardar los datos filtrados
+    output_filename = strcat(position_groups{i}, '_filtrados.csv');
+    
+    % Guardar los datos en un nuevo archivo CSV
+    writetable(group_data, output_filename);
+end
+
